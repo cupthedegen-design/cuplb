@@ -12,22 +12,30 @@ fetch("/api/leaderboard")
     const end = new Date(meta.end_time);
     const timerEl = document.getElementById("timer");
 
-    function tick() {
-      const diff = end - new Date();
-      if (diff <= 0) {
-        timerEl.textContent = "Ended";
-        return;
-      }
+function tick() {
+  const diff = end - new Date();
 
-      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const h = Math.floor(diff / (1000 * 60 * 60)) % 24;
-      const m = Math.floor(diff / (1000 * 60)) % 60;
+  if (diff <= 0) {
+    timerEl.textContent = "Ended";
+    return;
+  }
 
-      timerEl.textContent = `${d}d ${h}h ${m}m`;
-    }
+  const totalSeconds = Math.floor(diff / 1000);
 
-    tick();
-    setInterval(tick, 60000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = n => String(n).padStart(2, "0");
+
+  timerEl.textContent =
+    `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+}
+
+tick();
+setInterval(tick, 1000);
+
 
     // ===== PODIUM =====
     const [first, second, third] = users;
