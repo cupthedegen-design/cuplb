@@ -1,6 +1,8 @@
 async function submitLeaderboard() {
   const password = document.getElementById("password").value;
   const status = document.getElementById("status");
+  const days = Number(document.getElementById("days").value);
+  const resetTimer = document.getElementById("resetTimer").checked;
 
   let users;
   try {
@@ -18,19 +20,15 @@ async function submitLeaderboard() {
     body: JSON.stringify({
       password,
       users,
-      prizes: {
-        1: 500,
-        2: 200,
-        3: 125
-      }
+      prizes: { 1: 500, 2: 200, 3: 125 },
+      days,
+      resetTimer
     })
   });
 
   const data = await res.json();
 
-  if (data.success) {
-    status.textContent = "✅ Leaderboard updated successfully";
-  } else {
-    status.textContent = "❌ Error: " + (data.error || "unknown");
-  }
+  status.textContent = data.success
+    ? "✅ Leaderboard updated"
+    : "❌ Error updating leaderboard";
 }
