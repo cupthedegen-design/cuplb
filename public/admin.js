@@ -12,6 +12,14 @@ async function submitLeaderboard() {
     return;
   }
 
+  // ===== PRIZES =====
+  const prizes = {};
+  document.querySelectorAll("#prizes input").forEach(input => {
+    const rank = input.dataset.rank;
+    const value = Number(input.value);
+    if (value > 0) prizes[rank] = value;
+  });
+
   status.textContent = "⏳ Updating leaderboard...";
 
   const res = await fetch("/api/admin", {
@@ -20,7 +28,7 @@ async function submitLeaderboard() {
     body: JSON.stringify({
       password,
       users,
-      prizes: { 1: 500, 2: 200, 3: 125 },
+      prizes,
       days,
       resetTimer
     })
