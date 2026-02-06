@@ -63,6 +63,14 @@
 
     <textarea id="jsonInput" placeholder="Paste Diceblox users[] JSON here"></textarea>
 
+    <input id="days" type="number" placeholder="Leaderboard duration (days)" />
+
+<label style="display:flex; gap:8px; align-items:center; margin-top:10px;">
+  <input type="checkbox" id="resetTimer" />
+  Reset / start new leaderboard
+</label>
+
+
     <button onclick="submitLeaderboard()">Update Leaderboard</button>
 
     <div class="status" id="status"></div>
