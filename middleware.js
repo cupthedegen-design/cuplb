@@ -1,23 +1,20 @@
-import { NextResponse } from "next/server";
+export function middleware(request) {
+  const allowedIp = "100.36.199.153";
 
-const ALLOWED_IP = "100.36.199.153";
-
-export function middleware(req) {
   const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0] ||
-    req.ip ||
+    request.headers.get("x-forwarded-for")?.split(",")[0] ??
     "unknown";
 
-  const url = req.nextUrl.pathname;
+  const pathname = new URL(request.url).pathname;
 
-  // Protect admin page and admin API
-  if (url.startsWith("/admin") || url.startsWith("/api/admin")) {
-    if (ip !== ALLOWED_IP) {
-      return new NextResponse("Not Found", { status: 404 });
+  // Protect admin page + admin API
+  if (pathname === "/admin.html" || pathname.startsWith("/api/admin")) {
+    if (ip !== allowedIp) {
+      return new Response("Not Found", { status: 404 });
     }
   }
 
-  return NextResponse.next();
+  return;
 }
 
 export const config = {
