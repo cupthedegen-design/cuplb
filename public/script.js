@@ -10,10 +10,10 @@ fetch("/api/leaderboard")
        LAST UPDATED
     ====================== */
     if (meta?.last_updated) {
-      const updatedAt = new Date(meta.last_updated);
       const updatedEl = document.getElementById("updatedAt");
       if (updatedEl) {
-        updatedEl.textContent = updatedAt.toLocaleString();
+        updatedEl.textContent =
+          new Date(meta.last_updated).toLocaleString();
       }
     }
 
@@ -33,16 +33,15 @@ fetch("/api/leaderboard")
             return;
           }
 
-          const totalSeconds = Math.floor(diff / 1000);
-          const days = Math.floor(totalSeconds / 86400);
-          const hours = Math.floor((totalSeconds % 86400) / 3600);
-          const minutes = Math.floor((totalSeconds % 3600) / 60);
-          const seconds = totalSeconds % 60;
+          const total = Math.floor(diff / 1000);
+          const d = Math.floor(total / 86400);
+          const h = Math.floor((total % 86400) / 3600);
+          const m = Math.floor((total % 3600) / 60);
+          const s = total % 60;
 
           const pad = n => String(n).padStart(2, "0");
-
           timerEl.textContent =
-            `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+            `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
         }
 
         tick();
@@ -105,7 +104,7 @@ fetch("/api/leaderboard")
     }
 
     /* =====================
-       TABLE (RANK 4–10)
+       TABLE (RANK 4–10 WITH PFPS)
     ====================== */
     const tbody = document.getElementById("leaderboardBody");
     if (!tbody) return;
@@ -116,7 +115,15 @@ fetch("/api/leaderboard")
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>#${u.rank}</td>
-        <td>${u.username}</td>
+        <td>
+          <div class="lb-user">
+            <img
+              src="${u.avatar_url || DEFAULT_AVATAR}"
+              alt="${u.username}"
+            />
+            <span>${u.username}</span>
+          </div>
+        </td>
         <td>$${Number(u.wagered).toLocaleString()}</td>
         <td>$${u.prize}</td>
       `;
