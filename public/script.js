@@ -1,11 +1,20 @@
 const DEFAULT_AVATAR =
   "https://cdn.diceblox.com/avatars/default.webp";
 
+const formatWagered = n =>
+  `R$${Number(n).toLocaleString()}`;
+
+const formatPrize = n =>
+  `$${Number(n).toLocaleString()}`;
+
 fetch("/api/leaderboard")
   .then(res => res.json())
   .then(({ users, meta }) => {
     if (!users || users.length === 0) return;
 
+    /* =====================
+       LAST UPDATED
+    ====================== */
     if (meta?.last_updated) {
       const updatedEl = document.getElementById("updatedAt");
       if (updatedEl) {
@@ -14,6 +23,9 @@ fetch("/api/leaderboard")
       }
     }
 
+    /* =====================
+       COUNTDOWN TIMER
+    ====================== */
     if (meta?.end_time) {
       const end = new Date(meta.end_time);
       const timerEl = document.getElementById("timer");
@@ -43,6 +55,9 @@ fetch("/api/leaderboard")
       }
     }
 
+    /* =====================
+       PODIUM (TOP 3)
+    ====================== */
     const podium = {
       first: users[0],
       second: users[1],
@@ -53,9 +68,9 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.first");
       card.querySelector("h3").textContent = podium.first.username;
       card.querySelector("p").textContent =
-        `$${Number(podium.first.wagered).toLocaleString()} wagered`;
+        `${formatWagered(podium.first.wagered)} wagered`;
       card.querySelector(".prize").textContent =
-        `$${podium.first.prize}`;
+        formatPrize(podium.first.prize);
 
       const avatar = card.querySelector(".avatar");
       avatar.style.backgroundImage =
@@ -68,9 +83,9 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.second");
       card.querySelector("h3").textContent = podium.second.username;
       card.querySelector("p").textContent =
-        `$${Number(podium.second.wagered).toLocaleString()} wagered`;
+        `${formatWagered(podium.second.wagered)} wagered`;
       card.querySelector(".prize").textContent =
-        `$${podium.second.prize}`;
+        formatPrize(podium.second.prize);
 
       const avatar = card.querySelector(".avatar");
       avatar.style.backgroundImage =
@@ -83,9 +98,9 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.third");
       card.querySelector("h3").textContent = podium.third.username;
       card.querySelector("p").textContent =
-        `$${Number(podium.third.wagered).toLocaleString()} wagered`;
+        `${formatWagered(podium.third.wagered)} wagered`;
       card.querySelector(".prize").textContent =
-        `$${podium.third.prize}`;
+        formatPrize(podium.third.prize);
 
       const avatar = card.querySelector(".avatar");
       avatar.style.backgroundImage =
@@ -94,6 +109,9 @@ fetch("/api/leaderboard")
       avatar.style.backgroundPosition = "center";
     }
 
+    /* =====================
+       TABLE (RANK 4–10)
+    ====================== */
     const tbody = document.getElementById("leaderboardBody");
     if (!tbody) return;
 
@@ -105,15 +123,12 @@ fetch("/api/leaderboard")
         <td>#${u.rank}</td>
         <td>
           <div class="lb-user">
-            <img
-              src="${u.avatar_url || DEFAULT_AVATAR}"
-              alt="${u.username}"
-            />
+            <img src="${u.avatar_url || DEFAULT_AVATAR}" />
             <span>${u.username}</span>
           </div>
         </td>
-        <td>$${Number(u.wagered).toLocaleString()}</td>
-        <td>$${u.prize}</td>
+        <td>${formatWagered(u.wagered)}</td>
+        <td>${formatPrize(u.prize)}</td>
       `;
       tbody.appendChild(tr);
     });
