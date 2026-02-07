@@ -40,3 +40,25 @@ async function submitLeaderboard() {
     ? "✅ Leaderboard updated"
     : "❌ Error updating leaderboard";
 }
+
+async function archiveLeaderboard() {
+  const password = document.getElementById("password").value;
+  const status = document.getElementById("status");
+
+  status.textContent = "📦 Archiving leaderboard...";
+
+  const res = await fetch("/api/admin", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      password,
+      archive: true
+    })
+  });
+
+  const data = await res.json();
+  status.textContent = data.success
+    ? "✅ Leaderboard archived"
+    : "❌ Failed to archive";
+}
+
