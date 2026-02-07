@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Past Leaderboards</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="container">
+  <h1>Past Leaderboards</h1>
+  <div id="archives"></div>
+</div>
+
+<script>
+fetch("/api/archive")
+  .then(res => res.json())
+  .then(archives => {
+    const container = document.getElementById("archives");
+
+    archives.forEach(a => {
+      const div = document.createElement("div");
+      div.style.marginBottom = "30px";
+
+      div.innerHTML = `
+        <h3>Ended ${new Date(a.created_at).toLocaleString()}</h3>
+        <table>
+          <tr>
+            <th>Rank</th>
+            <th>User</th>
+            <th>Wagered</th>
+            <th>Prize</th>
+          </tr>
+          ${a.leaderboard_archive_users
+            .sort((x, y) => x.rank - y.rank)
+            .map(u => `
+              <tr>
+                <td>#${u.rank}</td>
+                <td>${u.username}</td>
+                <td>$${Number(u.wagered).toLocaleString()}</td>
+                <td>$${u.prize}</td>
+              </tr>
+            `).join("")}
+        </table>
+      `;
+      container.appendChild(div);
+    });
+  });
+</script>
+
+</body>
+</html>
