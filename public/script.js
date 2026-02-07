@@ -6,9 +6,6 @@ fetch("/api/leaderboard")
   .then(({ users, meta }) => {
     if (!users || users.length === 0) return;
 
-    /* =====================
-       LAST UPDATED
-    ====================== */
     if (meta?.last_updated) {
       const updatedEl = document.getElementById("updatedAt");
       if (updatedEl) {
@@ -17,9 +14,6 @@ fetch("/api/leaderboard")
       }
     }
 
-    /* =====================
-       COUNTDOWN TIMER
-    ====================== */
     if (meta?.end_time) {
       const end = new Date(meta.end_time);
       const timerEl = document.getElementById("timer");
@@ -49,9 +43,6 @@ fetch("/api/leaderboard")
       }
     }
 
-    /* =====================
-       PODIUM (TOP 3)
-    ====================== */
     const podium = {
       first: users[0],
       second: users[1],
@@ -103,9 +94,6 @@ fetch("/api/leaderboard")
       avatar.style.backgroundPosition = "center";
     }
 
-    /* =====================
-       TABLE (RANK 4–10 WITH PFPS)
-    ====================== */
     const tbody = document.getElementById("leaderboardBody");
     if (!tbody) return;
 
