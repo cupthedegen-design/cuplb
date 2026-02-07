@@ -1,5 +1,8 @@
 import { supabase } from "./_supabase.js";
 
+const DEFAULT_AVATAR =
+  "https://cdn.diceblox.com/avatars/default.webp";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "POST only" });
@@ -18,20 +21,19 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // ===== GET CURRENT META =====
+  // Get meta
   const { data: meta } = await supabase
     .from("leaderboard_meta")
     .select("*")
     .single();
 
   const finalPrizes =
-    prizes && Object.keys(prizes).length > 0
+    prizes && Object.keys(prizes).length
       ? prizes
       : meta.prizes || {};
 
-  // ===== ARCHIVE CURRENT LEADERBOARD =====
+  // ===== ARCHIVE =====
   if (archive) {
-    // Create archive entry
     const { data: archiveRow } = await supabase
       .from("leaderboard_archive")
       .insert({
@@ -42,7 +44,6 @@ export default async function handler(req, res) {
       .select()
       .single();
 
-    // Copy top 10 users
     const { data: topUsers } = await supabase
       .from("leaderboard_users")
       .select("*")
@@ -62,7 +63,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // ===== TIMER + META =====
+  // ===== META UPDATE =====
   if (resetTimer && days) {
     const start = new Date();
     const end = new Date(start.getTime() + days * 86400000);
@@ -80,7 +81,7 @@ export default async function handler(req, res) {
     }).eq("id", true);
   }
 
-  // ===== UPDATE USERS =====
+  // ===== USERS =====
   if (Array.isArray(users)) {
     await supabase.from("leaderboard_users").delete().neq("id", 0);
 
@@ -90,7 +91,8 @@ export default async function handler(req, res) {
       username: u.username,
       wagered: u.wagered,
       rank: i + 1,
-      prize: finalPrizes[i + 1] || 0
+      prize: finalPrizes[i + 1] || 0,
+      avatar_url: u.avatar_url || DEFAULT_AVATAR
     }));
 
     await supabase.from("leaderboard_users").insert(rows);
