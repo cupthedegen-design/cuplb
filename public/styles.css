@@ -213,3 +213,40 @@ td {
 .socials a:hover {
   color: gold;
 }
+
+/* ===== PLAY NOW BUTTON ===== */
+.play-now-wrapper {
+  margin-top: 14px;
+  text-align: center;
+}
+
+.play-now-btn {
+  display: inline-block;
+  padding: 12px 26px;
+  background: linear-gradient(135deg, #19c37d, #0fa968);
+  color: #000;
+  font-weight: 800;
+  border-radius: 999px;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.play-now-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(25, 195, 125, 0.45);
+}
+
+/* ===== TABLE AVATARS ===== */
+.lb-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lb-user img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
