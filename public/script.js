@@ -62,7 +62,7 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.first");
       card.querySelector("h3").textContent = podium.first.username;
       card.querySelector("p").textContent =
-        `${Number(podium.first.wagered).toLocaleString()} wagered`;
+        `{Number(podium.first.wagered).toLocaleString()} wagered`;
       card.querySelector(".prize").textContent =
         `$${podium.first.prize}`;
 
@@ -77,7 +77,7 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.second");
       card.querySelector("h3").textContent = podium.second.username;
       card.querySelector("p").textContent =
-        `${Number(podium.second.wagered).toLocaleString()} wagered`;
+        `{Number(podium.second.wagered).toLocaleString()} wagered`;
       card.querySelector(".prize").textContent =
         `$${podium.second.prize}`;
 
@@ -92,7 +92,7 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.third");
       card.querySelector("h3").textContent = podium.third.username;
       card.querySelector("p").textContent =
-        `${Number(podium.third.wagered).toLocaleString()} wagered`;
+        `{Number(podium.third.wagered).toLocaleString()} wagered`;
       card.querySelector(".prize").textContent =
         `$${podium.third.prize}`;
 
@@ -121,7 +121,7 @@ fetch("/api/leaderboard")
             <span>${u.username}</span>
           </div>
         </td>
-        <td>${Number(u.wagered).toLocaleString()}</td>
+        <td>{Number(u.wagered).toLocaleString()}</td>
         <td>$${u.prize}</td>
       `;
       tbody.appendChild(tr);
