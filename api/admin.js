@@ -1,24 +1,46 @@
 import { supabase } from "./_supabase.js";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.ADMIN_JWT_SECRET;
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "POST only" });
+  // ===== LOGIN =====
+  if (req.method === "POST" && req.query.login === "true") {
+    const { password } = req.body;
+
+    if (password !== process.env.ADMIN_PASSWORD) {
+      return res.status(401).json({ error: "Invalid password" });
+    }
+
+    const token = jwt.sign(
+      { role: "admin" },
+      JWT_SECRET,
+      { expiresIn: "12h" }
+    );
+
+    return res.json({ token });
   }
 
+  // ===== AUTH CHECK =====
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: "No token" });
+
+  try {
+    jwt.verify(auth.replace("Bearer ", ""), JWT_SECRET);
+  } catch {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+
+  // ===== ADMIN ACTIONS =====
   const {
     users,
-    password,
     days,
     resetTimer,
     prizes,
     archive
   } = req.body;
 
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-
-  // ===== GET CURRENT META =====
+  // get meta
   const { data: meta } = await supabase
     .from("leaderboard_meta")
     .select("*")
@@ -29,9 +51,8 @@ export default async function handler(req, res) {
       ? prizes
       : meta.prizes || {};
 
-  // ===== ARCHIVE CURRENT LEADERBOARD =====
+  // archive
   if (archive) {
-    // Create archive entry
     const { data: archiveRow } = await supabase
       .from("leaderboard_archive")
       .insert({
@@ -42,7 +63,6 @@ export default async function handler(req, res) {
       .select()
       .single();
 
-    // Copy top 10 users
     const { data: topUsers } = await supabase
       .from("leaderboard_users")
       .select("*")
@@ -62,7 +82,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // ===== TIMER + META =====
+  // timer
   if (resetTimer && days) {
     const start = new Date();
     const end = new Date(start.getTime() + days * 86400000);
@@ -80,20 +100,20 @@ export default async function handler(req, res) {
     }).eq("id", true);
   }
 
-  // ===== UPDATE USERS =====
+  // users
   if (Array.isArray(users)) {
     await supabase.from("leaderboard_users").delete().neq("id", 0);
 
     users.sort((a, b) => b.wagered - a.wagered);
 
-    const rows = users.map((u, i) => ({
-      username: u.username,
-      wagered: u.wagered,
-      rank: i + 1,
-      prize: finalPrizes[i + 1] || 0
-    }));
-
-    await supabase.from("leaderboard_users").insert(rows);
+    await supabase.from("leaderboard_users").insert(
+      users.map((u, i) => ({
+        username: u.username,
+        wagered: u.wagered,
+        rank: i + 1,
+        prize: finalPrizes[i + 1] || 0
+      }))
+    );
   }
 
   res.json({ success: true });
