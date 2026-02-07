@@ -1,12 +1,6 @@
 const DEFAULT_AVATAR =
   "https://cdn.diceblox.com/avatars/default.webp";
 
-const formatWagered = n =>
-  `R$${Number(n).toLocaleString()}`;
-
-const formatPrize = n =>
-  `$${Number(n).toLocaleString()}`;
-
 fetch("/api/leaderboard")
   .then(res => res.json())
   .then(({ users, meta }) => {
@@ -68,9 +62,9 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.first");
       card.querySelector("h3").textContent = podium.first.username;
       card.querySelector("p").textContent =
-        `${formatWagered(podium.first.wagered)} wagered`;
+        `${Number(podium.first.wagered).toLocaleString()} wagered`;
       card.querySelector(".prize").textContent =
-        formatPrize(podium.first.prize);
+        `$${podium.first.prize}`;
 
       const avatar = card.querySelector(".avatar");
       avatar.style.backgroundImage =
@@ -83,9 +77,9 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.second");
       card.querySelector("h3").textContent = podium.second.username;
       card.querySelector("p").textContent =
-        `${formatWagered(podium.second.wagered)} wagered`;
+        `${Number(podium.second.wagered).toLocaleString()} wagered`;
       card.querySelector(".prize").textContent =
-        formatPrize(podium.second.prize);
+        `$${podium.second.prize}`;
 
       const avatar = card.querySelector(".avatar");
       avatar.style.backgroundImage =
@@ -98,9 +92,9 @@ fetch("/api/leaderboard")
       const card = document.querySelector(".podium-card.third");
       card.querySelector("h3").textContent = podium.third.username;
       card.querySelector("p").textContent =
-        `${formatWagered(podium.third.wagered)} wagered`;
+        `${Number(podium.third.wagered).toLocaleString()} wagered`;
       card.querySelector(".prize").textContent =
-        formatPrize(podium.third.prize);
+        `$${podium.third.prize}`;
 
       const avatar = card.querySelector(".avatar");
       avatar.style.backgroundImage =
@@ -127,8 +121,8 @@ fetch("/api/leaderboard")
             <span>${u.username}</span>
           </div>
         </td>
-        <td>${formatWagered(u.wagered)}</td>
-        <td>${formatPrize(u.prize)}</td>
+        <td>${Number(u.wagered).toLocaleString()}</td>
+        <td>$${u.prize}</td>
       `;
       tbody.appendChild(tr);
     });
