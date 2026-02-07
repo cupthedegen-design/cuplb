@@ -10,24 +10,57 @@ export default async function handler(req, res) {
     password,
     days,
     resetTimer,
-    prizes
+    prizes,
+    archive
   } = req.body;
 
   if (password !== process.env.ADMIN_PASSWORD) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // Get current meta
+  // ===== GET CURRENT META =====
   const { data: meta } = await supabase
     .from("leaderboard_meta")
     .select("*")
     .single();
 
-  // Decide which prizes to use
   const finalPrizes =
     prizes && Object.keys(prizes).length > 0
       ? prizes
       : meta.prizes || {};
+
+  // ===== ARCHIVE CURRENT LEADERBOARD =====
+  if (archive) {
+    // Create archive entry
+    const { data: archiveRow } = await supabase
+      .from("leaderboard_archive")
+      .insert({
+        start_time: meta.start_time,
+        end_time: meta.end_time,
+        prizes: finalPrizes
+      })
+      .select()
+      .single();
+
+    // Copy top 10 users
+    const { data: topUsers } = await supabase
+      .from("leaderboard_users")
+      .select("*")
+      .order("rank", { ascending: true })
+      .limit(10);
+
+    if (topUsers?.length) {
+      await supabase.from("leaderboard_archive_users").insert(
+        topUsers.map(u => ({
+          archive_id: archiveRow.id,
+          username: u.username,
+          wagered: u.wagered,
+          rank: u.rank,
+          prize: u.prize
+        }))
+      );
+    }
+  }
 
   // ===== TIMER + META =====
   if (resetTimer && days) {
@@ -47,7 +80,7 @@ export default async function handler(req, res) {
     }).eq("id", true);
   }
 
-  // ===== LEADERBOARD USERS =====
+  // ===== UPDATE USERS =====
   if (Array.isArray(users)) {
     await supabase.from("leaderboard_users").delete().neq("id", 0);
 
