@@ -1,64 +1,83 @@
+const token = localStorage.getItem("adminToken");
+
+if (token) showAdmin();
+
+function showAdmin() {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("adminPanel").style.display = "block";
+}
+
+async function login() {
+  const password = document.getElementById("loginPassword").value;
+  const status = document.getElementById("loginStatus");
+
+  const res = await fetch("/api/admin?login=true", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ password })
+  });
+
+  const data = await res.json();
+
+  if (data.token) {
+    localStorage.setItem("adminToken", data.token);
+    showAdmin();
+  } else {
+    status.textContent = "❌ Invalid password";
+  }
+}
+
+function logout() {
+  localStorage.removeItem("adminToken");
+  location.reload();
+}
+
 async function submitLeaderboard() {
-  const password = document.getElementById("password").value;
+  const token = localStorage.getItem("adminToken");
   const status = document.getElementById("status");
-  const days = Number(document.getElementById("days").value);
-  const resetTimer = document.getElementById("resetTimer").checked;
 
   let users;
   try {
     users = JSON.parse(document.getElementById("jsonInput").value);
   } catch {
-    status.textContent = "❌ Invalid JSON";
+    status.textContent = "Invalid JSON";
     return;
   }
 
-  // ===== PRIZES =====
   const prizes = {};
-  document.querySelectorAll("#prizes input").forEach(input => {
-    const rank = input.dataset.rank;
-    const value = Number(input.value);
-    if (value > 0) prizes[rank] = value;
+  document.querySelectorAll("#prizes input").forEach(i => {
+    if (i.value) prizes[i.dataset.rank] = Number(i.value);
   });
-
-  status.textContent = "⏳ Updating leaderboard...";
 
   const res = await fetch("/api/admin", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      "authorization": `Bearer ${token}`
+    },
     body: JSON.stringify({
-      password,
       users,
       prizes,
-      days,
-      resetTimer
+      days: Number(document.getElementById("days").value),
+      resetTimer: document.getElementById("resetTimer").checked
     })
   });
 
   const data = await res.json();
-
-  status.textContent = data.success
-    ? "✅ Leaderboard updated"
-    : "❌ Error updating leaderboard";
+  status.textContent = data.success ? "Updated!" : "Error";
 }
 
 async function archiveLeaderboard() {
-  const password = document.getElementById("password").value;
-  const status = document.getElementById("status");
+  const token = localStorage.getItem("adminToken");
 
-  status.textContent = "📦 Archiving leaderboard...";
-
-  const res = await fetch("/api/admin", {
+  await fetch("/api/admin", {
     method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      password,
-      archive: true
-    })
+    headers: {
+      "content-type": "application/json",
+      "authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ archive: true })
   });
 
-  const data = await res.json();
-  status.textContent = data.success
-    ? "✅ Leaderboard archived"
-    : "❌ Failed to archive";
+  alert("Archived!");
 }
-
