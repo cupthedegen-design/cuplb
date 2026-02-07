@@ -12,45 +12,53 @@ fetch("/api/leaderboard")
     const end = new Date(meta.end_time);
     const timerEl = document.getElementById("timer");
 
-function tick() {
-  const diff = end - new Date();
+    function tick() {
+      const diff = end - new Date();
+      if (diff <= 0) {
+        timerEl.textContent = "Ended";
+        return;
+      }
 
-  if (diff <= 0) {
-    timerEl.textContent = "Ended";
-    return;
-  }
+      const totalSeconds = Math.floor(diff / 1000);
+      const d = Math.floor(totalSeconds / 86400);
+      const h = Math.floor((totalSeconds % 86400) / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
 
-  const totalSeconds = Math.floor(diff / 1000);
+      const pad = n => String(n).padStart(2, "0");
+      timerEl.textContent =
+        `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+    }
 
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+    tick();
+    setInterval(tick, 1000);
 
-  const pad = n => String(n).padStart(2, "0");
-
-  timerEl.textContent =
-    `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
-}
-
-tick();
-setInterval(tick, 1000);
-
-
-    // ===== PODIUM =====
+    // ===== PODIUM (NOW WITH PRIZES) =====
     const [first, second, third] = users;
 
-    document.querySelector(".podium-card.first h3").textContent = first.username;
+    // 1st
+    document.querySelector(".podium-card.first h3").textContent =
+      first.username;
     document.querySelector(".podium-card.first p").textContent =
       `$${Number(first.wagered).toLocaleString()} wagered`;
+    document.querySelector(".podium-card.first .prize").textContent =
+      `$${first.prize}`;
 
-    document.querySelector(".podium-card.second h3").textContent = second.username;
+    // 2nd
+    document.querySelector(".podium-card.second h3").textContent =
+      second.username;
     document.querySelector(".podium-card.second p").textContent =
       `$${Number(second.wagered).toLocaleString()} wagered`;
+    document.querySelector(".podium-card.second .prize").textContent =
+      `$${second.prize}`;
 
-    document.querySelector(".podium-card.third h3").textContent = third.username;
+    // 3rd
+    document.querySelector(".podium-card.third h3").textContent =
+      third.username;
     document.querySelector(".podium-card.third p").textContent =
       `$${Number(third.wagered).toLocaleString()} wagered`;
+    document.querySelector(".podium-card.third .prize").textContent =
+      `$${third.prize}`;
 
     // ===== TABLE =====
     const tbody = document.getElementById("leaderboardBody");
