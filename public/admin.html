@@ -1,101 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Admin – Leaderboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    .admin-box {
-      max-width: 900px;
-      margin: 40px auto;
-      background: #141414;
-      padding: 25px;
-      border-radius: 12px;
-    }
-
-    textarea {
-      width: 100%;
-      height: 260px;
-      background: #0e0e0e;
-      color: #fff;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 12px;
-      font-family: monospace;
-      resize: vertical;
-    }
-
-    input {
-      width: 100%;
-      margin-bottom: 12px;
-      padding: 10px;
-      background: #0e0e0e;
-      color: #fff;
-      border: 1px solid #333;
-      border-radius: 8px;
-    }
-
-    button {
-      padding: 12px 18px;
-      background: gold;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    .status {
-      margin-top: 12px;
-      font-size: 14px;
-    }
-  </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="admin-box">
-    <h2>Admin – Update Leaderboard</h2>
+  <div class="admin-box" id="loginBox">
+    <h2>Admin Login</h2>
+    <input id="loginPassword" type="password" placeholder="Admin password" />
+    <button onclick="login()">Login</button>
+    <p id="loginStatus"></p>
+  </div>
 
-    <input id="password" type="password" placeholder="Admin password" />
+  <div class="admin-box" id="adminPanel" style="display:none;">
+    <h2>Leaderboard Admin</h2>
 
-<h3>Prize Editor (1st–10th)</h3>
+    <input id="days" type="number" placeholder="Duration (days)" />
+    <label>
+      <input type="checkbox" id="resetTimer" />
+      Reset leaderboard
+    </label>
 
-<div id="prizes">
-  <input type="number" placeholder="1st place prize" data-rank="1" />
-  <input type="number" placeholder="2nd place prize" data-rank="2" />
-  <input type="number" placeholder="3rd place prize" data-rank="3" />
-  <input type="number" placeholder="4th place prize" data-rank="4" />
-  <input type="number" placeholder="5th place prize" data-rank="5" />
-  <input type="number" placeholder="6th place prize" data-rank="6" />
-  <input type="number" placeholder="7th place prize" data-rank="7" />
-  <input type="number" placeholder="8th place prize" data-rank="8" />
-  <input type="number" placeholder="9th place prize" data-rank="9" />
-  <input type="number" placeholder="10th place prize" data-rank="10" />
-</div>
+    <h3>Prize Editor</h3>
+    <div id="prizes"></div>
 
-
-
-    <textarea id="jsonInput" placeholder="Paste Diceblox users[] JSON here"></textarea>
-
-    <input id="days" type="number" placeholder="Leaderboard duration (days)" />
-
-<label style="display:flex; gap:8px; align-items:center; margin-top:10px;">
-  <input type="checkbox" id="resetTimer" />
-  Reset / start new leaderboard
-</label>
-
+    <textarea id="jsonInput" placeholder="Paste users[] JSON"></textarea>
 
     <button onclick="submitLeaderboard()">Update Leaderboard</button>
+    <button onclick="archiveLeaderboard()">Archive Leaderboard</button>
+    <button onclick="logout()">Logout</button>
 
-    <button onclick="archiveLeaderboard()">
-  Archive current leaderboard
-</button>
-
-
-    <div class="status" id="status"></div>
+    <p id="status"></p>
   </div>
 </div>
 
