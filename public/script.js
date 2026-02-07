@@ -1,70 +1,118 @@
+const DEFAULT_AVATAR =
+  "https://cdn.diceblox.com/avatars/default.webp";
+
 fetch("/api/leaderboard")
   .then(res => res.json())
   .then(({ users, meta }) => {
-    if (!users?.length) return;
+    if (!users || users.length === 0) return;
 
-    // ===== LAST UPDATED =====
-    const updatedAt = new Date(meta.last_updated);
-    document.getElementById("updatedAt").textContent =
-      updatedAt.toLocaleString();
-
-    // ===== TIMER =====
-    const end = new Date(meta.end_time);
-    const timerEl = document.getElementById("timer");
-
-    function tick() {
-      const diff = end - new Date();
-      if (diff <= 0) {
-        timerEl.textContent = "Ended";
-        return;
+    /* =====================
+       LAST UPDATED
+    ====================== */
+    if (meta?.last_updated) {
+      const updatedAt = new Date(meta.last_updated);
+      const updatedEl = document.getElementById("updatedAt");
+      if (updatedEl) {
+        updatedEl.textContent = updatedAt.toLocaleString();
       }
-
-      const totalSeconds = Math.floor(diff / 1000);
-      const d = Math.floor(totalSeconds / 86400);
-      const h = Math.floor((totalSeconds % 86400) / 3600);
-      const m = Math.floor((totalSeconds % 3600) / 60);
-      const s = totalSeconds % 60;
-
-      const pad = n => String(n).padStart(2, "0");
-      timerEl.textContent =
-        `${d}d ${pad(h)}h ${pad(m)}m ${pad(s)}s`;
     }
 
-    tick();
-    setInterval(tick, 1000);
+    /* =====================
+       COUNTDOWN TIMER
+    ====================== */
+    if (meta?.end_time) {
+      const end = new Date(meta.end_time);
+      const timerEl = document.getElementById("timer");
 
-    // ===== PODIUM (NOW WITH PRIZES) =====
-    const [first, second, third] = users;
+      if (timerEl) {
+        function tick() {
+          const diff = end - new Date();
 
-    // 1st
-    document.querySelector(".podium-card.first h3").textContent =
-      first.username;
-    document.querySelector(".podium-card.first p").textContent =
-      `$${Number(first.wagered).toLocaleString()} wagered`;
-    document.querySelector(".podium-card.first .prize").textContent =
-      `$${first.prize}`;
+          if (diff <= 0) {
+            timerEl.textContent = "Ended";
+            return;
+          }
 
-    // 2nd
-    document.querySelector(".podium-card.second h3").textContent =
-      second.username;
-    document.querySelector(".podium-card.second p").textContent =
-      `$${Number(second.wagered).toLocaleString()} wagered`;
-    document.querySelector(".podium-card.second .prize").textContent =
-      `$${second.prize}`;
+          const totalSeconds = Math.floor(diff / 1000);
+          const days = Math.floor(totalSeconds / 86400);
+          const hours = Math.floor((totalSeconds % 86400) / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
 
-    // 3rd
-    document.querySelector(".podium-card.third h3").textContent =
-      third.username;
-    document.querySelector(".podium-card.third p").textContent =
-      `$${Number(third.wagered).toLocaleString()} wagered`;
-    document.querySelector(".podium-card.third .prize").textContent =
-      `$${third.prize}`;
+          const pad = n => String(n).padStart(2, "0");
 
-    // ===== TABLE =====
+          timerEl.textContent =
+            `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+        }
+
+        tick();
+        setInterval(tick, 1000);
+      }
+    }
+
+    /* =====================
+       PODIUM (TOP 3)
+    ====================== */
+    const podium = {
+      first: users[0],
+      second: users[1],
+      third: users[2]
+    };
+
+    if (podium.first) {
+      const card = document.querySelector(".podium-card.first");
+      card.querySelector("h3").textContent = podium.first.username;
+      card.querySelector("p").textContent =
+        `$${Number(podium.first.wagered).toLocaleString()} wagered`;
+      card.querySelector(".prize").textContent =
+        `$${podium.first.prize}`;
+
+      const avatar = card.querySelector(".avatar");
+      avatar.style.backgroundImage =
+        `url(${podium.first.avatar_url || DEFAULT_AVATAR})`;
+      avatar.style.backgroundSize = "cover";
+      avatar.style.backgroundPosition = "center";
+    }
+
+    if (podium.second) {
+      const card = document.querySelector(".podium-card.second");
+      card.querySelector("h3").textContent = podium.second.username;
+      card.querySelector("p").textContent =
+        `$${Number(podium.second.wagered).toLocaleString()} wagered`;
+      card.querySelector(".prize").textContent =
+        `$${podium.second.prize}`;
+
+      const avatar = card.querySelector(".avatar");
+      avatar.style.backgroundImage =
+        `url(${podium.second.avatar_url || DEFAULT_AVATAR})`;
+      avatar.style.backgroundSize = "cover";
+      avatar.style.backgroundPosition = "center";
+    }
+
+    if (podium.third) {
+      const card = document.querySelector(".podium-card.third");
+      card.querySelector("h3").textContent = podium.third.username;
+      card.querySelector("p").textContent =
+        `$${Number(podium.third.wagered).toLocaleString()} wagered`;
+      card.querySelector(".prize").textContent =
+        `$${podium.third.prize}`;
+
+      const avatar = card.querySelector(".avatar");
+      avatar.style.backgroundImage =
+        `url(${podium.third.avatar_url || DEFAULT_AVATAR})`;
+      avatar.style.backgroundSize = "cover";
+      avatar.style.backgroundPosition = "center";
+    }
+
+    /* =====================
+       TABLE (RANK 4–10)
+    ====================== */
     const tbody = document.getElementById("leaderboardBody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
-    users.slice(3).forEach(u => {
+    users.slice(3, 10).forEach(u => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>#${u.rank}</td>
@@ -74,4 +122,7 @@ fetch("/api/leaderboard")
       `;
       tbody.appendChild(tr);
     });
+  })
+  .catch(err => {
+    console.error("Leaderboard load failed:", err);
   });
